@@ -1,6 +1,9 @@
 package gmail
 
 import (
+	"context"
+	"fmt"
+	"net/http"
 	"os"
 
 	"golang.org/x/oauth2"
@@ -8,7 +11,7 @@ import (
 	"google.golang.org/api/gmail/v1"
 )
 
-func loadcredentials() (*oauth2.Config, error) {
+func loadCredentials() (*oauth2.Config, error) {
 	b, err := os.ReadFile("credentials.json")
 	if err != nil {
 		return nil, err
@@ -21,16 +24,30 @@ func loadcredentials() (*oauth2.Config, error) {
 	return config, nil
 }
 
-func authenticate(config *oauth2.Config) error(
-config,err:=loadcredentials()
-if err!=nil{
-	return err
-}
+func authenticate() (*http.Client, error) {
+	config, err := loadCredentials()
+	if err != nil {
+		return nil, err
+	}
 
-authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-if err!=nil{
-	return err
-}
+	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 
-return nil
-)
+	fmt.Println("Please retrieve authentication code by logging into this URL:", authURL)
+
+	var code string
+	_, err = fmt.Scan(&code)
+	if err != nil {
+		return nil, err
+	}
+	ctx := context.Background()
+
+	token, err := config.Exchange(ctx, code)
+	if err != nil {
+		return nil, err
+
+	}
+
+	httpClient := config.Client(ctx, token)
+
+	return httpClient, nil
+}
