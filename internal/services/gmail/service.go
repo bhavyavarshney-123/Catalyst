@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"golang.org/x/oauth2"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
@@ -12,9 +13,9 @@ type GmailService struct {
 	service *gmail.Service
 }
 
-func NewGmailService() (*GmailService, error) {
+func NewGmailService(config *oauth2.Config, code string) (*GmailService, error) {
 
-	httpClient, err := authenticate()
+	httpClient, err := ExchangeCode(config, code)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +75,9 @@ func (g *GmailService) FetchEmail(id string) (*Email, error) {
 
 }
 
-func (g *GmailService) ListRecentMessages(limit int) ([]Email, error) {
-	return nil, nil
+func (g *GmailService) ListRecentMessages() (*gmail.Profile, error) {
+
+	resp, err := g.service.Users.GetProfile("me").Do()
+
+	return resp, err
 }

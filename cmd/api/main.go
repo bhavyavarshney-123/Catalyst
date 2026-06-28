@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/bhavyavarshney-123/catalyst/internal/database"
@@ -32,17 +31,19 @@ func main() {
 	defer db.Close()
 
 	repo := repository.NewOpportunityRepository(db)
+	config, err := gmail.LoadCredentials()
+	if err != nil {
+		panic(err)
+
+	}
 
 	r.Post("/opportunities", handlers.PostOpportunity(repo))
 	r.Get("/opportunities", handlers.GetOpportunity(repo))
 	r.Get("/opportunities/{id}", handlers.GetOpportunitybyID(repo))
 	r.Put("/opportunities/{id}", handlers.UpdateOpportunity(repo))
 	r.Delete("/opportunities/{id}", handlers.DeleteOpportunity(repo))
-
-	_, err = gmail.NewGmailService()
-	if err != nil {
-		log.Fatal(err)
-	}
+	r.Get("/gmail/connect", handlers.ConnectGmail(config))
+	r.Get("/oauth/callback", handlers.OAuthCallback(config))
 
 	fmt.Println("Gmail authenticated successfully!")
 	fmt.Println("Server started on :8080")
