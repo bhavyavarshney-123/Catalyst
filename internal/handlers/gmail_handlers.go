@@ -28,11 +28,11 @@ func OAuthCallback(config *oauth2.Config) http.HandlerFunc {
 			http.Error(w, fmt.Sprintf("Gmail Service error: %v", err), http.StatusBadRequest)
 		}
 
-		profile, err := gmailService.ListRecentMessages()
+		message, err := gmailService.ListRecentMessages(5)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("%+v\n", profile)
+		fmt.Printf("%+v\n", message)
 	}
 }

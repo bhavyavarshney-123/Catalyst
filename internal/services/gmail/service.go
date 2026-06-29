@@ -34,20 +34,20 @@ func NewGmailService(config *oauth2.Config, code string) (*GmailService, error) 
 
 }
 
-func (g *GmailService) FetchEmail(id string) (*Email, error) {
+func (g *GmailService) FetchEmail(id string) (Email, error) {
 
 	userid := "me"
 	call := g.service.Users.Messages.Get(userid, id)
 
 	message, err := call.Do()
 	if err != nil {
-		return nil, err
+		return Email{}, err
 	}
 
 	payload := message.Payload
 	if payload == nil {
 		fmt.Errorf("Payload is nil")
-		return nil, nil
+		return Email{}, nil
 	}
 
 	var subject, from, date string
@@ -65,8 +65,10 @@ func (g *GmailService) FetchEmail(id string) (*Email, error) {
 
 	body := payload.Body
 
+	fmt.Println(body.Data)
+
 	fmt.Println(body)
-	return &Email{
+	return Email{
 		ID:      message.Id,
 		Subject: subject,
 		From:    from,
@@ -74,10 +76,22 @@ func (g *GmailService) FetchEmail(id string) (*Email, error) {
 	}, nil
 
 }
+func (g *GmailService) ListRecentMessages(limit int64) ([]Email, error) {
 
-func (g *GmailService) ListRecentMessages() (*gmail.Profile, error) {
+	var Email []Email
 
-	resp, err := g.service.Users.GetProfile("me").Do()
+	resp, err := g.service.Users.Messages.List("me").MaxResults(limit).Do()
+	if err != nil {
+		return nil, err
+	}
 
-	return resp, err
+	for _, msg := range resp.Messages {
+		email, err := g.FetchEmail(msg.Id)
+		if err != nil {
+			return nil, err
+		}
+		Email = append(Email, email)
+	}
+
+	return Email, nil
 }
