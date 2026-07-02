@@ -2,6 +2,7 @@ package gmail
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 
 	"golang.org/x/oauth2"
@@ -63,15 +64,36 @@ func (g *GmailService) FetchEmail(id string) (Email, error) {
 		}
 	}
 
-	body := payload.Body
+	var body string
 
-	fmt.Println(body.Data)
+	if payload.Body.Data != "" {
+		decoded, err := base64.URLEncoding.DecodeString(payload.Body.Data)
+		if err != nil {
+			return Email{}, err
+		}
 
-	fmt.Println(body)
+		body = string(decoded)
+	} else {
+
+		for _, part := range payload.Parts {
+			        switch part.MimeType {
+      case "text/plain", "text/html":
+    decoded, err := base64.RawURLEncoding.DecodeString(part.Body.Data)
+    if err != nil {
+        return Email{}, err
+    }
+
+    if part.MimeType == "text/plain" {
+        body = string(decoded)
+    } else if body == "" {
+        body = string(decoded)
+    }
+	}
 	return Email{
 		ID:      message.Id,
 		Subject: subject,
 		From:    from,
+		Body:    body,
 		Date:    date,
 	}, nil
 
