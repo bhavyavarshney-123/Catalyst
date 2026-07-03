@@ -76,18 +76,17 @@ func (g *GmailService) FetchEmail(id string) (Email, error) {
 	} else {
 
 		for _, part := range payload.Parts {
-			        switch part.MimeType {
-      case "text/plain", "text/html":
-    decoded, err := base64.RawURLEncoding.DecodeString(part.Body.Data)
-    if err != nil {
-        return Email{}, err
-    }
 
-    if part.MimeType == "text/plain" {
-        body = string(decoded)
-    } else if body == "" {
-        body = string(decoded)
-    }
+			if part.MimeType == "text/plain" {
+				decoded, err := base64.URLEncoding.DecodeString(part.Body.Data)
+				if err != nil {
+					return Email{}, err
+				}
+
+				body = string(decoded)
+				break
+			}
+		}
 	}
 	return Email{
 		ID:      message.Id,
@@ -116,4 +115,46 @@ func (g *GmailService) ListRecentMessages(limit int64) ([]Email, error) {
 	}
 
 	return Email, nil
+}
+
+func (g *GmailService) SearchEmails(query string) ([]Email, error) {
+
+	var Email []Email
+
+	resp, err := g.service.Users.Messages.List("me").Q(query).Do()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, msg := range resp.Messages {
+		email, err := g.FetchEmail(msg.Id)
+		if err != nil {
+			return nil, err
+		}
+		Email = append(Email, email)
+	}
+
+	return Email, nil
+
+}
+
+func (g *GmailService) GetUnreadEmails(limit int64) ([]Email, error) {
+
+	var Email []Email
+
+	resp, err := g.service.Users.Messages.List("me").MaxResults(limit).Q("is:unread").Do()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, msg := range resp.Messages {
+		email, err := g.FetchEmail(msg.Id)
+		if err != nil {
+			return nil, err
+		}
+		Email = append(Email, email)
+	}
+
+	return Email, nil
+
 }

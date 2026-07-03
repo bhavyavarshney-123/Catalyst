@@ -42,10 +42,15 @@ func main() {
 	r.Get("/opportunities/{id}", handlers.GetOpportunitybyID(repo))
 	r.Put("/opportunities/{id}", handlers.UpdateOpportunity(repo))
 	r.Delete("/opportunities/{id}", handlers.DeleteOpportunity(repo))
-	r.Get("/gmail/connect", handlers.ConnectGmail(config))
-	r.Get("/oauth/callback", handlers.OAuthCallback(config))
 
-	fmt.Println("Gmail authenticated successfully!")
+	manager := &gmail.GmailManager{}
+
+	r.Get("/gmail/connect", handlers.ConnectGmail(config))
+	r.Get("/oauth/callback", handlers.OAuthCallback(config, manager))
+	r.Get("/gmail/messages", handlers.ListRecentEmails(manager))
+	r.Get("/gmail/search", handlers.SearchEmails(manager))
+	r.Get("/gmail/UnreadEmails", handlers.GetUnreadEmails(manager))
+
 	fmt.Println("Server started on :8080")
 
 	err = http.ListenAndServe(":8080", r)
