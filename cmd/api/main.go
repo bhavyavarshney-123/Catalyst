@@ -48,7 +48,7 @@ func main() {
 	r.Get("/gmail/connect", handlers.ConnectGmail(config))
 	r.Get("/oauth/callback", handlers.OAuthCallback(config, manager))
 	r.Get("/gmail/messages", handlers.ListRecentEmails(manager))
-	r.Get("/gmail/search", handlers.SearchEmails(manager))
+	r.Get("/gmail/messages/Search", handlers.SearchEmails(manager))
 	r.Get("/gmail/UnreadEmails", handlers.GetUnreadEmails(manager))
 
 	fmt.Println("Server started on :8080")

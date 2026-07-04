@@ -31,17 +31,15 @@ func OAuthCallback(config *oauth2.Config, manager *gmail.GmailManager) http.Hand
 
 		fmt.Fprintln(w, "Gmail authenticated successfully!")
 
-		manager = &gmail.GmailManager{
-			Service: gmailService,
-		}
+		manager.Service = gmailService
 	}
 }
 
 func ListRecentEmails(manager *gmail.GmailManager) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+		param := r.URL.Query().Get("limit")
+		limit, err := strconv.Atoi(param)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -76,8 +74,8 @@ func SearchEmails(manager *gmail.GmailManager) http.HandlerFunc {
 func GetUnreadEmails(manager *gmail.GmailManager) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		limit, err := strconv.Atoi(r.URL.Query().Get("limit"))
+		param := r.URL.Query().Get("limit")
+		limit, err := strconv.Atoi(param)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -91,4 +89,22 @@ func GetUnreadEmails(manager *gmail.GmailManager) http.HandlerFunc {
 
 		fmt.Printf("%+v\n", message)
 	}
+}
+
+
+func SyncEmails(...) http.HandlerFunc {
+    return func(w http.ResponseWriter, r *http.Request) {
+
+        emails := gmailService.ListRecentMessages(20)
+
+        for _, email := range emails {
+
+            // Ignore non-job emails
+
+            // Convert Email -> Opportunity
+
+            // Save Opportunity
+        }
+
+    }
 }
