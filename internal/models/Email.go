@@ -1,4 +1,4 @@
-package gmail
+package models
 
 type Email struct {
 	ID      string

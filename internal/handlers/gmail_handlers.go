@@ -90,21 +90,3 @@ func GetUnreadEmails(manager *gmail.GmailManager) http.HandlerFunc {
 		fmt.Printf("%+v\n", message)
 	}
 }
-
-
-func SyncEmails(...) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-
-        emails := gmailService.ListRecentMessages(20)
-
-        for _, email := range emails {
-
-            // Ignore non-job emails
-
-            // Convert Email -> Opportunity
-
-            // Save Opportunity
-        }
-
-    }
-}
