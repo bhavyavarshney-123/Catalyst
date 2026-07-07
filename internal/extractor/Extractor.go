@@ -3,15 +3,15 @@ package extractor
 import (
 	extractor "github.com/bhavyavarshney-123/catalyst/internal/extractor/models"
 	"github.com/bhavyavarshney-123/catalyst/internal/models"
-	"github.com/bhavyavarshney-123/catalyst/internal/services/AI"
+	"github.com/bhavyavarshney-123/catalyst/internal/services/ai"
 )
 
 type Extractor struct {
-	ai     AI.AIService
+	ai     ai.AIService
 	prompt string
 }
 
-func NewExtractor(ai AI.AIService, prompt string) *Extractor {
+func NewExtractor(ai ai.AIService, prompt string) *Extractor {
 	return &Extractor{
 		ai:     ai,
 		prompt: prompt,
@@ -19,5 +19,5 @@ func NewExtractor(ai AI.AIService, prompt string) *Extractor {
 }
 
 func (e *Extractor) ExtractOpportunity(email models.Email) (extractor.ExtractOpportunity, error) {
-
+	return extractor.ExtractOpportunity{}, nil
 }

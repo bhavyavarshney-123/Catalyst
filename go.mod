@@ -8,7 +8,7 @@ require github.com/joho/godotenv v1.5.1
 
 require (
 	github.com/lib/pq v1.12.3
-	github.com/openai/openai-go/v3 v3.41.0
+	github.com/openai/openai-go v1.12.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/api v0.286.0
 )

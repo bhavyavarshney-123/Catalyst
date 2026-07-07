@@ -1,11 +1,11 @@
-package AI
+package ai
 
 import (
 	"context"
 
-	openai "github.com/openai/openai-go/v3"
-	"github.com/openai/openai-go/v3/option"
-	"github.com/openai/openai-go/v3/responses"
+	openai "github.com/openai/openai-go"
+	"github.com/openai/openai-go/option"
+	"github.com/openai/openai-go/responses"
 )
 
 type OpenAIService struct {
@@ -27,12 +27,15 @@ func (o *OpenAIService) Generate(prompt string, content string) (string, error) 
 	ctx := context.Background()
 
 	resp, err := o.client.Responses.New(ctx, responses.ResponseNewParams{
-		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(content)},
-		Model: openai.ChatModelGPT5_2,
+		Instructions: openai.String(prompt),
+		Input:        responses.ResponseNewParamsInputUnion{OfString: openai.String(content)},
+		Model:        openai.ChatModelGPT4o,
 	})
 
 	if err != nil {
-		return " ", err
+		return "", err
 	}
+	textresponse := resp.OutputText()
+	return textresponse, nil
 
 }
