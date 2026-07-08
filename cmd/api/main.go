@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/bhavyavarshney-123/catalyst/internal/database"
 	"github.com/bhavyavarshney-123/catalyst/internal/handlers"
 	"github.com/bhavyavarshney-123/catalyst/internal/repository"
+	"github.com/bhavyavarshney-123/catalyst/internal/services/ai"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/gmail"
 	"github.com/go-chi/chi"
 	"github.com/joho/godotenv"
@@ -50,6 +52,9 @@ func main() {
 	r.Get("/gmail/messages", handlers.ListRecentEmails(manager))
 	r.Get("/gmail/messages/Search", handlers.SearchEmails(manager))
 	r.Get("/gmail/UnreadEmails", handlers.GetUnreadEmails(manager))
+
+	OpenAI_Key := os.Getenv("OPENAI_API_KEY")
+	ai := ai.NewOpenAIService(OpenAI_Key)
 
 	fmt.Println("Server started on :8080")
 
