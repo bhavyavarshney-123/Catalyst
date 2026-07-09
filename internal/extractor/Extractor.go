@@ -19,5 +19,11 @@ func NewExtractor(ai ai.AIService, prompt string) *Extractor {
 }
 
 func (e *Extractor) ExtractOpportunity(email models.Email) (extractor.ExtractOpportunity, error) {
-	return extractor.ExtractOpportunity{}, nil
+
+	content := buildContent(email)
+	repsonse, err := e.ai.Generate(OpportunityExtractionPrompt, content)
+	if err != nil {
+		return extractor.ExtractOpportunity{}, nil
+	}
+
 }
