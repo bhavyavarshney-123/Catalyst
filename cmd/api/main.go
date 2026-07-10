@@ -6,10 +6,12 @@ import (
 	"os"
 
 	"github.com/bhavyavarshney-123/catalyst/internal/database"
+	"github.com/bhavyavarshney-123/catalyst/internal/extractor"
 	"github.com/bhavyavarshney-123/catalyst/internal/handlers"
 	"github.com/bhavyavarshney-123/catalyst/internal/repository"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/ai"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/gmail"
+	"github.com/bhavyavarshney-123/catalyst/internal/services/sync"
 	"github.com/go-chi/chi"
 	"github.com/joho/godotenv"
 )
@@ -54,7 +56,12 @@ func main() {
 	r.Get("/gmail/UnreadEmails", handlers.GetUnreadEmails(manager))
 
 	OpenAI_Key := os.Getenv("OPENAI_API_KEY")
-	ai := ai.NewOpenAIService(OpenAI_Key)
+	aiService := ai.NewOpenAIService(OpenAI_Key)
+
+	extractor := extractor.NewExtractor(aiService)
+	syncService := sync.NewSyncService(manager, extractor, repo)
+
+	r.Get("/sync", handlers.Sync(syncService))
 
 	fmt.Println("Server started on :8080")
 
