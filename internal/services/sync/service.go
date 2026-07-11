@@ -32,13 +32,19 @@ func (s *SyncService) Sync(limit int) error {
 	}
 
 	for _, email := range emails {
+
 		extracted, err := s.extractor.ExtractOpportunity(email)
 		if err != nil {
 			return err
 		}
 
-		opportunity := extractor.ToOpportunity(extracted)
-
+		if !extracted.IsOpportunity {
+			continue
+		}
+		opportunity, err := extractor.ToOpportunity(extracted)
+		if err != nil {
+			return err
+		}
 		if err := s.repo.CreateOpportunity(opportunity); err != nil {
 			return err
 		}

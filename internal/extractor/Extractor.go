@@ -22,6 +22,7 @@ func (e *Extractor) ExtractOpportunity(email models.Email) (extractor.ExtractOpp
 
 	content := buildContent(email)
 	response, err := e.ai.Generate(OpportunityExtractionPrompt, content)
+
 	if err != nil {
 		return extractor.ExtractOpportunity{}, err
 	}

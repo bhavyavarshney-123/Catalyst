@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+
 	r := chi.NewRouter()
 
 	err := godotenv.Load()
@@ -64,7 +65,6 @@ func main() {
 	r.Get("/sync", handlers.Sync(syncService))
 
 	fmt.Println("Server started on :8080")
-
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println(err)
