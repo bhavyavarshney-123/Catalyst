@@ -5,6 +5,7 @@ import (
 
 	"github.com/bhavyavarshney-123/catalyst/internal/extractor"
 	"github.com/bhavyavarshney-123/catalyst/internal/repository"
+	embeddings "github.com/bhavyavarshney-123/catalyst/internal/services/embeddings"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/gmail"
 )
 
@@ -12,13 +13,15 @@ type SyncService struct {
 	gmail     *gmail.GmailManager
 	extractor *extractor.Extractor
 	repo      *repository.OpportunityRepository
+	embedding embeddings.EmbeddingService
 }
 
-func NewSyncService(gmail *gmail.GmailManager, extractor *extractor.Extractor, repo *repository.OpportunityRepository) *SyncService {
+func NewSyncService(gmail *gmail.GmailManager, extractor *extractor.Extractor, repo *repository.OpportunityRepository, embedding embeddings.EmbeddingService) *SyncService {
 	return &SyncService{
 		gmail:     gmail,
 		extractor: extractor,
 		repo:      repo,
+		embedding: embedding,
 	}
 }
 
@@ -41,10 +44,20 @@ func (s *SyncService) Sync(limit int) error {
 		if !extracted.IsOpportunity {
 			continue
 		}
-		opportunity, err := extractor.ToOpportunity(extracted)
+
+		opportunitytxt := buildEmbeddingText(extracted)
+
+		embedding, err := s.embedding.Generate(opportunitytxt)
+
 		if err != nil {
 			return err
 		}
+
+		opportunity, err := extractor.ToOpportunity(extracted, embedding)
+		if err != nil {
+			return err
+		}
+
 		if err := s.repo.CreateOpportunity(opportunity); err != nil {
 			return err
 		}

@@ -10,6 +10,7 @@ import (
 	"github.com/bhavyavarshney-123/catalyst/internal/handlers"
 	"github.com/bhavyavarshney-123/catalyst/internal/repository"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/ai"
+	embeddings "github.com/bhavyavarshney-123/catalyst/internal/services/embeddings"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/gmail"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/sync"
 	"github.com/go-chi/chi"
@@ -58,9 +59,10 @@ func main() {
 
 	OpenAI_Key := os.Getenv("OPENAI_API_KEY")
 	aiService := ai.NewOpenAIService(OpenAI_Key)
+	embeddingservice := embeddings.NewOpenAIEmbeddingService(OpenAI_Key)
 
 	extractor := extractor.NewExtractor(aiService)
-	syncService := sync.NewSyncService(manager, extractor, repo)
+	syncService := sync.NewSyncService(manager, extractor, repo, embeddingservice)
 
 	r.Get("/sync", handlers.Sync(syncService))
 
