@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/pgvector/pgvector-go"
+)
 
 type Opportunity struct {
 	ID                int64      `json:"id"`
@@ -15,5 +19,5 @@ type Opportunity struct {
 	CreatedAt         time.Time  `json:"created_at"`
 	UpdatedAt         time.Time  `json:"updated_at"`
 
-	Embedding []float64 `json:"embedding"`
+	Embedding pgvector.Vector `json:"embedding"`
 }

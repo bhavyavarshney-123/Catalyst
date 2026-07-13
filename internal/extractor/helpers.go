@@ -6,6 +6,7 @@ import (
 
 	extractor "github.com/bhavyavarshney-123/catalyst/internal/extractor/models"
 	"github.com/bhavyavarshney-123/catalyst/internal/models"
+	"github.com/pgvector/pgvector-go"
 )
 
 func buildContent(email models.Email) string {
@@ -28,6 +29,8 @@ func ToOpportunity(extracted extractor.ExtractOpportunity, embedding []float64) 
 		}
 		interviewTime = t
 	}
+
+	vector := pgvector.NewVector(ToFloat32(embedding))
 	return models.Opportunity{
 		CompanyName:       extracted.CompanyName,
 		RoleApplied:       extracted.RoleApplied,
@@ -37,6 +40,16 @@ func ToOpportunity(extracted extractor.ExtractOpportunity, embedding []float64) 
 		MeetingLink:       extracted.MeetingLink,
 		TestLink:          extracted.TestLink,
 		Comments:          extracted.Comments,
-		Embedding:         embedding,
+		Embedding:         vector,
 	}, nil
+}
+
+func ToFloat32(values []float64) []float32 {
+	result := make([]float32, len(values))
+
+	for i, v := range values {
+		result[i] = float32(v)
+	}
+
+	return result
 }

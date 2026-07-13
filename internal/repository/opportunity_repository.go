@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/bhavyavarshney-123/catalyst/internal/extractor"
 	"github.com/bhavyavarshney-123/catalyst/internal/models"
+	"github.com/pgvector/pgvector-go"
 )
 
 type OpportunityRepository struct {
@@ -27,7 +29,9 @@ func (r *OpportunityRepository) CreateOpportunity(opportunity models.Opportunity
     interview_date,
     meeting_link,
     test_link,
-    comments
+    comments,
+	Embedding
+
 )
 VALUES (
     $1,
@@ -37,7 +41,8 @@ VALUES (
     $5,
     $6,
     $7,
-    $8
+    $8,
+	$9
 )`
 
 	_, err := r.db.Exec(query, opportunity.CompanyName,
@@ -47,7 +52,8 @@ VALUES (
 		opportunity.InterviewDate,
 		opportunity.MeetingLink,
 		opportunity.TestLink,
-		opportunity.Comments)
+		opportunity.Comments,
+		opportunity.Embedding)
 
 	if err != nil {
 		return err
@@ -58,7 +64,17 @@ VALUES (
 
 func (r *OpportunityRepository) GetOpportunities() ([]models.Opportunity, error) {
 
-	query := `SELECT * FROM opportunities`
+	query := `SELECT id,
+    company_name,
+    role_applied,
+    application_status,
+    next_step_todo,
+    interview_date,
+    meeting_link,
+    test_link,
+    comments,
+    created_at,
+    updated_at FROM opportunities`
 	var opportunities []models.Opportunity
 
 	rows, err := r.db.Query(query)
@@ -98,7 +114,18 @@ func (r *OpportunityRepository) GetOpportunities() ([]models.Opportunity, error)
 
 func (r *OpportunityRepository) GetOpportunityByID(id int64) (*models.Opportunity, error) {
 
-	query := `SELECT * FROM opportunities WHERE id=$1`
+	query := `SELECT id,
+    company_name,
+    role_applied,
+    application_status,
+    next_step_todo,
+    interview_date,
+    meeting_link,
+    test_link,
+    comments,
+    created_at,
+    updated_at FROM opportunities WHERE id=$1`
+
 	var opportunity models.Opportunity
 
 	row := r.db.QueryRow(query, id)
@@ -180,4 +207,65 @@ func (r *OpportunityRepository) DeleteOpportunity(id int64) error {
 	}
 
 	return nil
+}
+
+func (r *OpportunityRepository) SearchSimilar(embedding []float64, limit int) ([]models.Opportunity, error) {
+
+	query := `SELECT
+    id,
+    company_name,
+    role_applied,
+    application_status,
+    next_step_todo,
+    interview_date,
+    meeting_link,
+    test_link,
+    comments,
+    embedding <=> $1 AS distance
+FROM opportunities
+ORDER BY distance
+LIMIT $2`
+
+	vector := pgvector.NewVector(extractor.ToFloat32(embedding))
+
+	rows, err := r.db.Query(query, vector, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var opportunities []models.Opportunity
+	for rows.Next() {
+
+		var opportunity models.Opportunity
+		var distance float64
+
+		err := rows.Scan(
+			&opportunity.ID,
+			&opportunity.CompanyName,
+			&opportunity.RoleApplied,
+			&opportunity.ApplicationStatus,
+			&opportunity.NextStepTodo,
+			&opportunity.InterviewDate,
+			&opportunity.MeetingLink,
+			&opportunity.TestLink,
+			&opportunity.Comments,
+			&distance,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Println(distance)
+
+		opportunities = append(opportunities, opportunity)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return opportunities, nil
 }
