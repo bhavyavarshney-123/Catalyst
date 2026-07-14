@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/bhavyavarshney-123/catalyst/cmd/cli"
 	"github.com/bhavyavarshney-123/catalyst/internal/database"
 	"github.com/bhavyavarshney-123/catalyst/internal/extractor"
 	"github.com/bhavyavarshney-123/catalyst/internal/handlers"
@@ -12,6 +13,7 @@ import (
 	"github.com/bhavyavarshney-123/catalyst/internal/services/ai"
 	embeddings "github.com/bhavyavarshney-123/catalyst/internal/services/embeddings"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/gmail"
+	"github.com/bhavyavarshney-123/catalyst/internal/services/rag"
 	"github.com/bhavyavarshney-123/catalyst/internal/services/sync"
 	"github.com/go-chi/chi"
 	"github.com/joho/godotenv"
@@ -66,10 +68,13 @@ func main() {
 
 	r.Get("/sync", handlers.Sync(syncService))
 
-	fmt.Println("Server started on :8080")
-	err = http.ListenAndServe(":8080", r)
-	if err != nil {
-		fmt.Println(err)
-	}
+	go func() {
+		fmt.Println("Server started on :8080")
+		if err := http.ListenAndServe(":8080", r); err != nil {
+			fmt.Println(err)
+		}
+	}()
 
+	RAGService := rag.NewRaGService(aiService, repo, embeddingservice)
+	cli.CLI(RAGService)
 }
