@@ -223,6 +223,7 @@ func (r *OpportunityRepository) SearchSimilar(embedding []float64, limit int) ([
     comments,
     embedding <=> $1 AS distance
 FROM opportunities
+WHERE embedding IS NOT NULL
 ORDER BY distance
 LIMIT $2`
 
@@ -257,10 +258,8 @@ LIMIT $2`
 		if err != nil {
 			return nil, err
 		}
-
-		fmt.Println(distance)
-
 		opportunities = append(opportunities, opportunity)
+
 	}
 
 	if err := rows.Err(); err != nil {

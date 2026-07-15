@@ -24,6 +24,9 @@ func (r *RAGService) Answer(question string) (string, error) {
 	}
 
 	results, err := r.repo.SearchSimilar(embedding, 5)
+	if err != nil {
+		return "", err
+	}
 
 	context := BuildContext(results)
 
