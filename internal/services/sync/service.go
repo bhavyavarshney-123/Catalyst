@@ -2,6 +2,7 @@ package sync
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/bhavyavarshney-123/catalyst/internal/extractor"
 	"github.com/bhavyavarshney-123/catalyst/internal/repository"
@@ -58,9 +59,28 @@ func (s *SyncService) Sync(limit int) error {
 			return err
 		}
 
-		if err := s.repo.CreateOpportunity(opportunity); err != nil {
+		id, err := s.repo.CheckExists(opportunity.CompanyName, opportunity.RoleApplied)
+
+		if err != nil {
 			return err
 		}
+
+		if id == 0 {
+			fmt.Println("Opportunity does not exist, creating a new opportunity")
+
+			if err := s.repo.CreateOpportunity(opportunity); err != nil {
+				return err
+			}
+		} else {
+
+			fmt.Println("Opportunity already exists, updating it")
+
+			if err := s.repo.UpdateOpportunity(opportunity, id); err != nil {
+				return err
+			}
+
+		}
+
 	}
 
 	return nil

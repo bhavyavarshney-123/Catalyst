@@ -41,6 +41,8 @@ func ToOpportunity(extracted extractor.ExtractOpportunity, embedding []float64) 
 		TestLink:          extracted.TestLink,
 		Comments:          extracted.Comments,
 		Embedding:         vector,
+		ExternalID:        extracted.ExternalID,
+		Source:            extracted.Source,
 	}, nil
 }
 

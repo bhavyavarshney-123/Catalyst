@@ -30,7 +30,9 @@ func (r *OpportunityRepository) CreateOpportunity(opportunity models.Opportunity
     meeting_link,
     test_link,
     comments,
-	Embedding
+	embedding,
+	source,
+	external_id
 
 )
 VALUES (
@@ -42,8 +44,12 @@ VALUES (
     $6,
     $7,
     $8,
-	$9
-)`
+	$9,
+	$10,
+	$11
+)
+ON CONFLICT (source, external_id)
+DO NOTHING`
 
 	_, err := r.db.Exec(query, opportunity.CompanyName,
 		opportunity.RoleApplied,
@@ -53,7 +59,9 @@ VALUES (
 		opportunity.MeetingLink,
 		opportunity.TestLink,
 		opportunity.Comments,
-		opportunity.Embedding)
+		opportunity.Embedding,
+		opportunity.Source,
+		opportunity.ExternalID)
 
 	if err != nil {
 		return err
@@ -74,7 +82,8 @@ func (r *OpportunityRepository) GetOpportunities() ([]models.Opportunity, error)
     test_link,
     comments,
     created_at,
-    updated_at FROM opportunities`
+    updated_at,
+	source FROM opportunities`
 	var opportunities []models.Opportunity
 
 	rows, err := r.db.Query(query)
@@ -100,6 +109,7 @@ func (r *OpportunityRepository) GetOpportunities() ([]models.Opportunity, error)
 			&opportunity.Comments,
 			&opportunity.CreatedAt,
 			&opportunity.UpdatedAt,
+			&opportunity.Source,
 		)
 
 		if err != nil {
@@ -124,7 +134,8 @@ func (r *OpportunityRepository) GetOpportunityByID(id int64) (*models.Opportunit
     test_link,
     comments,
     created_at,
-    updated_at FROM opportunities WHERE id=$1`
+    updated_at,
+	source FROM opportunities WHERE id=$1`
 
 	var opportunity models.Opportunity
 
@@ -142,12 +153,30 @@ func (r *OpportunityRepository) GetOpportunityByID(id int64) (*models.Opportunit
 		&opportunity.Comments,
 		&opportunity.CreatedAt,
 		&opportunity.UpdatedAt,
+		&opportunity.Source,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	return &opportunity, nil
+}
+
+func (r *OpportunityRepository) CheckExists(companyName, roleApplied string) (int64, error) {
+
+	query := `SELECT id FROM opportunities WHERE company_name=$1 AND role_applied=$2`
+
+	var id int64
+	err := r.db.QueryRow(query, companyName, roleApplied).Scan(&id)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func (r *OpportunityRepository) UpdateOpportunity(opportunity models.Opportunity, id int64) error {
@@ -159,7 +188,8 @@ SET
     interview_date = $3,
     meeting_link = $4,
     test_link = $5,
-    comments = $6
+    comments = $6,
+	updated_at=CURRENT_TIMESTAMP
 WHERE id = $7`
 
 	results, err := r.db.Exec(query,
@@ -221,6 +251,7 @@ func (r *OpportunityRepository) SearchSimilar(embedding []float64, limit int) ([
     meeting_link,
     test_link,
     comments,
+	source,
     embedding <=> $1 AS distance
 FROM opportunities
 WHERE embedding IS NOT NULL
@@ -252,6 +283,7 @@ LIMIT $2`
 			&opportunity.MeetingLink,
 			&opportunity.TestLink,
 			&opportunity.Comments,
+			&opportunity.Source,
 			&distance,
 		)
 

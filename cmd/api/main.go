@@ -77,4 +77,5 @@ func main() {
 
 	RAGService := rag.NewRaGService(aiService, repo, embeddingservice)
 	cli.CLI(RAGService)
+	r.Post("/query", handlers.RAG(RAGService))
 }

@@ -19,5 +19,8 @@ type Opportunity struct {
 	CreatedAt         time.Time  `json:"created_at"`
 	UpdatedAt         time.Time  `json:"updated_at"`
 
-	Embedding pgvector.Vector `json:"embedding"`
+	Embedding pgvector.Vector `json:"-"`
+
+	Source     string `json:"source"`
+	ExternalID string `json:"-"`
 }

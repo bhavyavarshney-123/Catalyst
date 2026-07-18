@@ -12,6 +12,8 @@ type Extractor struct {
 	ai ai.AIService
 }
 
+const SourceGmail = "gmail"
+
 func NewExtractor(ai ai.AIService) *Extractor {
 	return &Extractor{
 		ai: ai,
@@ -32,6 +34,9 @@ func (e *Extractor) ExtractOpportunity(email models.Email) (extractor.ExtractOpp
 	if err != nil {
 		return extractor.ExtractOpportunity{}, err
 	}
+
+	opportunity.ExternalID = email.ID
+	opportunity.Source = SourceGmail
 
 	return opportunity, nil
 

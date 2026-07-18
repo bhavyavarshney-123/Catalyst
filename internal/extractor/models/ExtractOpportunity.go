@@ -10,4 +10,7 @@ type ExtractOpportunity struct {
 	MeetingLink       string `json:"meeting_link"`
 	TestLink          string `json:"test_link"`
 	Comments          string `json:"comments"`
+
+	Source     string `json:"source"`
+	ExternalID string `json:"externalid"`
 }

@@ -29,7 +29,9 @@ If the email IS related to a job opportunity, return ONLY:
   "interview_date": "",
   "meeting_link": "",
   "test_link": "",
-  "comments": ""
+  "comments": "",
+  "source":"",
+  "ExternalID":""
 }
 
 Rules:
