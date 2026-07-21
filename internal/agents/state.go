@@ -1,11 +1,11 @@
-package services
+package agent
 
 import "github.com/bhavyavarshney-123/catalyst/internal/models"
 
 type State struct {
 	UserQuestion string
 
-	Emails []models.email
+	Emails []models.Email
 
 	Opportunities []models.Opportunity
 

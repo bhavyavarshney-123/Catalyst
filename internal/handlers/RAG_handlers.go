@@ -37,9 +37,11 @@ func RAG(RAGService *rag.RAGService) http.HandlerFunc {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 		}
+
 		response := QueryResponse{
 			Answer: answer,
 		}
+
 		err = json.NewEncoder(w).Encode(response)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Encode error: %v", err), http.StatusBadRequest)
