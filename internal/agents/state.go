@@ -1,9 +1,10 @@
-package agent
+package agents
 
 import "github.com/bhavyavarshney-123/catalyst/internal/models"
 
 type State struct {
 	UserQuestion string
+	limit        int
 
 	Emails []models.Email
 
