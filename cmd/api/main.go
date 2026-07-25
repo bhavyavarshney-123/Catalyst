@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/bhavyavarshney-123/catalyst/cmd/cli"
+	"github.com/bhavyavarshney-123/catalyst/internal/agents"
 	"github.com/bhavyavarshney-123/catalyst/internal/database"
 	"github.com/bhavyavarshney-123/catalyst/internal/extractor"
 	"github.com/bhavyavarshney-123/catalyst/internal/handlers"
@@ -76,6 +77,8 @@ func main() {
 	}()
 
 	RAGService := rag.NewRaGService(aiService, repo, embeddingservice)
-	cli.CLI(RAGService)
+	agent := agents.NewAgent(RAGService, syncService, repo)
+
+	cli.CLI(agent)
 	r.Post("/query", handlers.RAG(RAGService))
 }

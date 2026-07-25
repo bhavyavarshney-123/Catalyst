@@ -1,6 +1,9 @@
 package agents
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 type SyncNode struct {
 	agent *Agent
@@ -17,5 +20,6 @@ func (n *SyncNode) Name() string {
 }
 
 func (n *SyncNode) Execute(ctx context.Context, state *State) error {
+	fmt.Println("Executing Sync Node")
 	return n.agent.SyncGmail(ctx, state)
 }

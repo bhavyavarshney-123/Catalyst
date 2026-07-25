@@ -2,14 +2,15 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
 
-	"github.com/bhavyavarshney-123/catalyst/internal/services/rag"
+	"github.com/bhavyavarshney-123/catalyst/internal/agents"
 )
 
-func CLI(ragService *rag.RAGService) {
+func CLI(agent *agents.Agent) {
 	fmt.Println("=========================")
 	fmt.Println("Welcome to Catalyst")
 	fmt.Println("Ask me anything about your job opportunities.")
@@ -39,14 +40,20 @@ func CLI(ragService *rag.RAGService) {
 			return
 		}
 
-		answer, err := ragService.Answer(question)
+		graph := agents.BuildGraph(agent)
+		ctx := context.Background()
+
+		state := &agents.State{
+			UserQuestion: question,
+			Limit:        2,
+		}
+
+		err := graph.Execute(ctx, state)
 		if err != nil {
 			fmt.Println("Error:", err)
 			continue
 		}
 
-		fmt.Println()
-		fmt.Println(answer)
-		fmt.Println()
+		fmt.Println(state.Response)
 	}
 }

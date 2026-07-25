@@ -1,6 +1,9 @@
 package agents
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
 type Graph struct {
 	edges []Edge
@@ -37,5 +40,40 @@ func (g *Graph) AddEdge(edge Edge) error {
 		}
 	}
 	g.edges = append(g.edges, edge)
+	return nil
+}
+
+func (g *Graph) Execute(ctx context.Context, state *State) error {
+
+	//defining the start point
+	current := "route"
+
+	for {
+		found := false
+		//retriving the node
+		node, ok := g.nodes[current]
+		if !ok {
+			return fmt.Errorf("node %q not found", current)
+		}
+
+		//Executing the node
+		if err := node.Execute(ctx, state); err != nil {
+			return err
+		}
+
+		//Finding the next node
+		for _, edge := range g.edges {
+			if edge.From == current {
+				current = edge.To
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			break
+		}
+
+	}
 	return nil
 }

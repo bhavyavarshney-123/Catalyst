@@ -4,7 +4,8 @@ import "github.com/bhavyavarshney-123/catalyst/internal/models"
 
 type State struct {
 	UserQuestion string
-	limit        int
+
+	Limit int
 
 	Emails []models.Email
 
@@ -17,6 +18,8 @@ type State struct {
 	Summary string
 
 	Response string
+
+	NeedsSync bool
 
 	Err error
 }
