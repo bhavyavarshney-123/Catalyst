@@ -17,6 +17,9 @@ func CLI(agent *agents.Agent) {
 	fmt.Println("Type 'exit' to quit.")
 	fmt.Println("=========================")
 
+	graph := agents.BuildGraph(agent)
+	ctx := context.Background()
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -40,16 +43,12 @@ func CLI(agent *agents.Agent) {
 			return
 		}
 
-		graph := agents.BuildGraph(agent)
-		ctx := context.Background()
-
 		state := &agents.State{
 			UserQuestion: question,
 			Limit:        2,
 		}
 
-		err := graph.Execute(ctx, state)
-		if err != nil {
+		if err := graph.Execute(ctx, state); err != nil {
 			fmt.Println("Error:", err)
 			continue
 		}
