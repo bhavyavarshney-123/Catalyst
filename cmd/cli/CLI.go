@@ -45,7 +45,7 @@ func CLI(agent *agents.Agent) {
 
 		state := &agents.State{
 			UserQuestion: question,
-			Limit:        2,
+			Limit:        4,
 		}
 
 		if err := graph.Execute(ctx, state); err != nil {
